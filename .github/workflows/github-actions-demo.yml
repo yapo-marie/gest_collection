@@ -8,18 +8,37 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Deploy to server
-      uses: appleboy/ssh-action@v0.1.4
-      with:
-        host: ${{ secrets.HOST }}
-        username: ${{ secrets.USERNAME }}
-        key: ${{ secrets.SSH_KEY }}
-        script: |
-          cd ${{ secrets.PROJECT_PATH }}
-          git pull origin main
-          docker compose down
-          docker compose up -d --build
-        exclude: ".git,node_modules"
+      - uses: actions/checkout@v3
 
+      - name: Deploy to server
+        uses: appleboy/ssh-action@v0.1.4
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
+          script: |
+            set -euo pipefail
+
+            PROJECT_DIR="${{ secrets.PROJECT_PATH }}"
+            if [ ! -d "$PROJECT_DIR" ]; then
+              echo "Remote path $PROJECT_DIR does not exist. Update PROJECT_PATH or create the directory."
+              exit 1
+            fi
+
+            if [ ! -d "$PROJECT_DIR/.git" ]; then
+              echo "Remote path $PROJECT_DIR exists but is not a git repository."
+              echo "Clone the repository on the server or adjust PROJECT_PATH."
+              exit 1
+            fi
+
+            cd "$PROJECT_DIR"
+            git fetch origin main
+            git reset --hard origin/main
+
+            if [ ! -f "compose.yml" ]; then
+              echo "compose.yml not found in $PROJECT_DIR. Ensure the file is present or update the docker compose path."
+              exit 1
+            fi
+
+            docker compose -f compose.yml down
+            docker compose -f compose.yml up -d --build
