@@ -8,8 +8,8 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    
+    - uses: actions/checkout@v3
+
     - name: Deploy to server
       uses: appleboy/ssh-action@v0.1.4
       with:
@@ -17,8 +17,7 @@ jobs:
         username: ${{ secrets.USERNAME }}
         key: ${{ secrets.SSH_KEY }}
         script: |
-          cd /path/to/project
+          cd ${{ secrets.PROJECT_PATH }}
           git pull origin main
           docker compose down
           docker compose up -d --build
-          docker compose -f docker-compose.monitoring.yml up -d
