@@ -19,8 +19,22 @@ jobs:
         rm: true
         exclude: ".git, node_modules"
         script: |
-          cd ${{ secrets.PROJECT_PATH }}
-          git pull origin main
+          set -Eeuo pipefail
+
+          PROJECT_DIR="${{ secrets.PROJECT_PATH }}"
+
+          if [ ! -d "$PROJECT_DIR" ]; then
+            echo "❌ Répertoire introuvable: $PROJECT_DIR"
+            exit 1
+          fi
+
+          if [ ! -d "$PROJECT_DIR/.git" ]; then
+            echo "❌ Aucun dépôt Git dans $PROJECT_DIR"
+            exit 1
+          fi
+
+          cd "$PROJECT_DIR"
+          git pull --ff-only origin main
           docker compose down
           docker compose up -d --build
 
