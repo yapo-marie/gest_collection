@@ -19,7 +19,7 @@ jobs:
         rm: true
         exclude: ".git, node_modules"
         script: |
-          cd /var/www/kubernetes-marie
+          cd ${{ secrets.PROJECT_PATH }}
           git pull origin main
           docker compose down
           docker compose up -d --build
