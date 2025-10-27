@@ -8,45 +8,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+    - uses: actions/checkout@v2
+    
+    - name: Deploy to server
+      uses: appleboy/ssh-action@v0.1.4
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.SSH_KEY }}
+        rm: true
+        exclude: ".git, node_modules"
+        script: |
+          cd /var/www/kubernetes-marie
+          git pull origin main
+          docker compose down
+          docker compose up -d --build
 
-      - name: Deploy to server
-        uses: appleboy/ssh-action@v0.1.4
-        with:
-          host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
-          key: ${{ secrets.SSH_KEY }}
-          script: |
-            set -euo pipefail
-
-            PROJECT_DIR="${{ secrets.PROJECT_PATH }}"
-            REPO_URL="git@github.com:${{ github.repository }}.git"
-
-            if [ ! -d "$PROJECT_DIR/.git" ]; then
-              PARENT_DIR="$(dirname "$PROJECT_DIR")"
-              mkdir -p "$PARENT_DIR"
-
-              if [ -d "$PROJECT_DIR" ] && [ "$(ls -A "$PROJECT_DIR" 2>/dev/null)" ]; then
-                echo "Remote path $PROJECT_DIR exists and is not empty, but it is not a git repository."
-                echo "Clean the directory or set PROJECT_PATH to an empty location before running the deployment."
-                exit 1
-              fi
-
-              if [ -d "$PROJECT_DIR" ]; then
-                rmdir "$PROJECT_DIR"
-              fi
-
-              git clone "$REPO_URL" "$PROJECT_DIR"
-            fi
-
-            cd "$PROJECT_DIR"
-            git fetch origin main
-            git reset --hard origin/main
-
-            if [ ! -f "compose.yml" ]; then
-              echo "compose.yml not found in $PROJECT_DIR. Ensure the file is present or update the docker compose path."
-              exit 1
-            fi
-
-            docker compose -f compose.yml down
-            docker compose -f compose.yml up -d --build
+        
