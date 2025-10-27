@@ -20,15 +20,23 @@ jobs:
             set -euo pipefail
 
             PROJECT_DIR="${{ secrets.PROJECT_PATH }}"
-            if [ ! -d "$PROJECT_DIR" ]; then
-              echo "Remote path $PROJECT_DIR does not exist. Update PROJECT_PATH or create the directory."
-              exit 1
-            fi
+            REPO_URL="git@github.com:${{ github.repository }}.git"
 
             if [ ! -d "$PROJECT_DIR/.git" ]; then
-              echo "Remote path $PROJECT_DIR exists but is not a git repository."
-              echo "Clone the repository on the server or adjust PROJECT_PATH."
-              exit 1
+              PARENT_DIR="$(dirname "$PROJECT_DIR")"
+              mkdir -p "$PARENT_DIR"
+
+              if [ -d "$PROJECT_DIR" ] && [ "$(ls -A "$PROJECT_DIR" 2>/dev/null)" ]; then
+                echo "Remote path $PROJECT_DIR exists and is not empty, but it is not a git repository."
+                echo "Clean the directory or set PROJECT_PATH to an empty location before running the deployment."
+                exit 1
+              fi
+
+              if [ -d "$PROJECT_DIR" ]; then
+                rmdir "$PROJECT_DIR"
+              fi
+
+              git clone "$REPO_URL" "$PROJECT_DIR"
             fi
 
             cd "$PROJECT_DIR"
