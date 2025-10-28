@@ -31,13 +31,26 @@ export const fetchDashboardStats = async () => {
     game: 'Jeux',
     card: 'Cartes'
   };
-  const byTypeMap = collections.reduce((acc, collection) => {
-    acc[collection.type] = (acc[collection.type] ?? 0) + 1;
+  const collectionsById = collections.reduce((acc, collection) => {
+    acc[collection.id] = collection.type;
     return acc;
   }, {});
-  const byType = Object.entries(typeLabels).map(([type, label]) => ({
-    type: label,
-    count: byTypeMap[type] ?? 0
+  const byTypeCounts = items.reduce((acc, item) => {
+    const type = collectionsById[item.collection_id];
+    if (!type) {
+      return acc;
+    }
+    acc[type] = (acc[type] ?? 0) + 1;
+    return acc;
+  }, {});
+
+  const knownTypes = Object.keys(typeLabels);
+  const dynamicTypes = Object.keys(byTypeCounts).filter((type) => !knownTypes.includes(type));
+  const orderedTypes = [...knownTypes, ...dynamicTypes];
+
+  const byType = orderedTypes.map((type) => ({
+    type: typeLabels[type] ?? type,
+    count: byTypeCounts[type] ?? 0
   }));
 
   const byStatusMap = items.reduce((acc, item) => {
