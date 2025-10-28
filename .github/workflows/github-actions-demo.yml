@@ -97,8 +97,6 @@ jobs:
           host: ${{ secrets.HOST }}
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
-          rm: true
-          exclude: ".git, node_modules"
           script: |
             set -Eeuo pipefail
 
