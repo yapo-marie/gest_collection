@@ -61,11 +61,11 @@ jobs:
       - name: Sync project to server
         uses: appleboy/scp-action@v0.1.7
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
           source: "."
-          target: ${{ secrets.DEPLOY_PATH }}
+          target: ${{ secrets.PROJECT_PATH }}
           rm: true
           strip_components: 0
           exclude: ".git,node_modules,frontend/node_modules"
@@ -73,11 +73,11 @@ jobs:
       - name: Deploy with Docker Compose
         uses: appleboy/ssh-action@v1.1.0
         with:
-          host: ${{ secrets.SSH_HOST }}
-          username: ${{ secrets.SSH_USER }}
-          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          key: ${{ secrets.SSH_KEY }}
           script: |
             set -euo pipefail
-            cd "${{ secrets.DEPLOY_PATH }}"
+            cd "${{ secrets.PROJECT_PATH }}"
             docker compose -f compose.yml down --remove-orphans
             docker compose -f compose.yml up -d --build
