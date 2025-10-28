@@ -101,15 +101,19 @@ jobs:
             set -Eeuo pipefail
 
             PROJECT_DIR="${{ secrets.PROJECT_PATH }}"
+            REPO_URL="${{ secrets.DEPLOY_REPO_URL }}"
 
-            if [ ! -d "$PROJECT_DIR" ]; then
-              echo "❌ Répertoire introuvable: $PROJECT_DIR"
-              exit 1
+            if [ -z "$REPO_URL" ]; then
+              REPO_URL="https://github.com/${{ github.repository }}.git"
             fi
 
             if [ ! -d "$PROJECT_DIR/.git" ]; then
-              echo "❌ Aucun dépôt Git dans $PROJECT_DIR"
-              exit 1
+              echo "ℹ️  Dépôt absent, clonage depuis $REPO_URL"
+              mkdir -p "$(dirname "$PROJECT_DIR")"
+              if [ -d "$PROJECT_DIR" ]; then
+                rm -rf "$PROJECT_DIR"
+              fi
+              git clone "$REPO_URL" "$PROJECT_DIR"
             fi
 
             cd "$PROJECT_DIR"
