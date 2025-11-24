@@ -4,8 +4,7 @@ import { Link } from 'react-router-dom';
 const statusColors = {
   owned: 'bg-slate-200 text-slate-700',
   in_progress: 'bg-amber-100 text-amber-700',
-  completed: 'bg-emerald-100 text-emerald-700',
-  wishlist: 'bg-indigo-100 text-indigo-700'
+  completed: 'bg-emerald-100 text-emerald-700'
 };
 
 function ItemCard({ item, onEdit, onDelete }) {
@@ -34,12 +33,24 @@ function ItemCard({ item, onEdit, onDelete }) {
           <span>{new Date(item.created_at).toLocaleDateString()}</span>
         </div>
         <div className="flex items-center justify-between pt-2">
-          <Link
-            to={`/items/${item.id}`}
-            className="text-sm font-medium text-primary-600 hover:text-primary-700"
-          >
-            Voir détails
-          </Link>
+          <div className="flex items-center gap-3">
+            <Link
+              to={`/items/${item.id}`}
+              className="text-sm font-medium text-primary-600 hover:text-primary-700"
+            >
+              Voir détails
+            </Link>
+            {item.access_url && (
+              <a
+                href={item.access_url}
+                target="_blank"
+                rel="noreferrer"
+                className="text-sm font-medium text-emerald-600 hover:text-emerald-700"
+              >
+                Ouvrir
+              </a>
+            )}
+          </div>
           <div className="flex items-center gap-2">
             <button
               type="button"
@@ -71,7 +82,8 @@ ItemCard.propTypes = {
     image_url: PropTypes.string,
     genre: PropTypes.string,
     rating: PropTypes.number,
-    creator: PropTypes.string
+    creator: PropTypes.string,
+    access_url: PropTypes.string
   }).isRequired,
   onEdit: PropTypes.func.isRequired,
   onDelete: PropTypes.func.isRequired

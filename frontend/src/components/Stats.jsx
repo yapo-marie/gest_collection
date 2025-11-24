@@ -24,11 +24,14 @@ function Stats({ totals, byType, byStatus }) {
       </div>
       <div className="rounded-2xl bg-white p-6 shadow-sm lg:col-span-3">
         <h3 className="text-sm font-medium text-slate-500">Statuts</h3>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-4 flex flex-wrap justify-center gap-5">
           {byStatus.map((status) => (
-            <div key={status.status} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+            <div
+              key={status.status}
+              className="min-w-[220px] rounded-xl border border-slate-100 bg-slate-50 px-6 py-5 shadow-sm"
+            >
               <p className="text-sm font-medium text-slate-500">{status.label}</p>
-              <p className="mt-2 text-2xl font-semibold text-slate-900">{status.count}</p>
+              <p className="mt-3 text-3xl font-semibold text-slate-900">{status.count}</p>
             </div>
           ))}
         </div>

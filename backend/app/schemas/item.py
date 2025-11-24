@@ -16,6 +16,7 @@ class ItemBase(BaseModel):
     rating: Optional[confloat(ge=1, le=5)] = None
     notes: Optional[str] = None
     image_url: Optional[HttpUrl] = None
+    access_url: Optional[HttpUrl] = None
     purchase_date: Optional[date] = None
     price: Optional[confloat(ge=0)] = None
     tags: Optional[conlist(str, max_items=20)] = None
@@ -33,6 +34,7 @@ class ItemUpdate(BaseModel):
     rating: Optional[confloat(ge=1, le=5)] = None
     notes: Optional[str] = None
     image_url: Optional[HttpUrl] = None
+    access_url: Optional[HttpUrl] = None
     purchase_date: Optional[date] = None
     price: Optional[confloat(ge=0)] = None
     tags: Optional[conlist(str, max_items=20)] = None

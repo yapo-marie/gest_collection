@@ -5,6 +5,15 @@
 body {
   @apply bg-slate-50 text-slate-900;
   font-family: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-image:
+    linear-gradient(180deg, rgba(248, 250, 252, 0.95), rgba(248, 250, 252, 0.92)),
+    url('https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?auto=format&fit=crop&w=1200&q=80'),
+    url('https://images.unsplash.com/photo-1525182008055-f88b95ff7980?auto=format&fit=crop&w=1200&q=80');
+  background-repeat: no-repeat, no-repeat, no-repeat;
+  background-position: center, left 20% top, right 15% bottom;
+  background-size: cover, 45%, 45%;
+  background-attachment: fixed, fixed, fixed;
+  background-blend-mode: normal, soft-light, soft-light;
 }
 
 a {

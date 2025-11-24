@@ -4,6 +4,19 @@ const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL ?? '/api'
 });
 
+let authToken = null;
+
+export const setAuthToken = (token) => {
+  authToken = token;
+  if (token) {
+    api.defaults.headers.common.Authorization = `Bearer ${token}`;
+    localStorage.setItem('auth_token', token);
+  } else {
+    delete api.defaults.headers.common.Authorization;
+    localStorage.removeItem('auth_token');
+  }
+};
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -15,6 +28,35 @@ api.interceptors.response.use(
     return Promise.reject(error);
   }
 );
+
+export const login = async (email, password) => {
+  const form = new FormData();
+  form.append('username', email);
+  form.append('password', password);
+  const response = await api.post('/auth/login', form, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  const { access_token: token } = response.data;
+  setAuthToken(token);
+  return token;
+};
+
+export const register = async (payload) => {
+  const response = await api.post('/auth/register', payload);
+  return response.data;
+};
+
+export const fetchMe = async () => {
+  const response = await api.get('/auth/me');
+  return response.data;
+};
+
+export const loginWithFirebase = async (idToken) => {
+  const response = await api.post('/auth/firebase', { id_token: idToken });
+  const { access_token: token } = response.data;
+  setAuthToken(token);
+  return token;
+};
 
 export const fetchDashboardStats = async () => {
   const [collectionsRes, itemsRes] = await Promise.all([
@@ -60,8 +102,7 @@ export const fetchDashboardStats = async () => {
   const statusLabels = {
     owned: 'Possédé',
     in_progress: 'En cours',
-    completed: 'Terminé',
-    wishlist: 'Wishlist'
+    completed: 'Terminé'
   };
   const byStatus = Object.entries(statusLabels).map(([status, label]) => ({
     status,
@@ -122,6 +163,15 @@ export const updateItem = async (itemId, payload) => {
 
 export const deleteItem = async (itemId) => {
   await api.delete(`/items/${itemId}`);
+};
+
+export const uploadFile = async (file) => {
+  const formData = new FormData();
+  formData.append('file', file);
+  const response = await api.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
+  return response.data;
 };
 
 export default api;

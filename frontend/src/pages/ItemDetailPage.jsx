@@ -49,7 +49,8 @@ function ItemDetailPage() {
       ...item,
       tags: item.tags ? item.tags.join(', ') : '',
       rating: item.rating ?? '',
-      price: item.price ?? ''
+      price: item.price ?? '',
+      access_url: item.access_url ?? ''
     };
   }, [item]);
 
@@ -135,6 +136,23 @@ function ItemDetailPage() {
                 <dt className="text-sm font-medium text-slate-500">Tags</dt>
                 <dd className="text-sm text-slate-900">
                   {item.tags && item.tags.length > 0 ? item.tags.join(', ') : '—'}
+                </dd>
+              </div>
+              <div>
+                <dt className="text-sm font-medium text-slate-500">Lien d'accès</dt>
+                <dd className="text-sm text-slate-900">
+                  {item.access_url ? (
+                    <a
+                      href={item.access_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-primary-600 hover:text-primary-700"
+                    >
+                      Ouvrir le lien
+                    </a>
+                  ) : (
+                    '—'
+                  )}
                 </dd>
               </div>
             </dl>

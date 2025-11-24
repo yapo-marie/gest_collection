@@ -23,6 +23,7 @@ const emptyItem = (collectionId) => ({
   rating: '',
   notes: '',
   image_url: '',
+  access_url: '',
   purchase_date: '',
   price: '',
   tags: ''
@@ -110,7 +111,8 @@ function CollectionDetailPage() {
       ...selectedItem,
       tags: selectedItem.tags ? selectedItem.tags.join(', ') : '',
       rating: selectedItem.rating ?? '',
-      price: selectedItem.price ?? ''
+      price: selectedItem.price ?? '',
+      access_url: selectedItem.access_url ?? ''
     };
   }, [selectedItem, collectionId]);
 
@@ -136,6 +138,16 @@ function CollectionDetailPage() {
           Nouvel item
         </button>
       </div>
+
+      {collection.image_url && (
+        <div className="overflow-hidden rounded-2xl">
+          <img
+            src={collection.image_url}
+            alt={collection.name}
+            className="h-64 w-full object-cover"
+          />
+        </div>
+      )}
 
       <FilterBar filters={filters} onChange={setFilters} showType={false} />
 

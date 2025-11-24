@@ -6,7 +6,8 @@ import Modal from '../components/Modal.jsx';
 import {
   createCollection,
   deleteCollection,
-  fetchCollections
+  fetchCollections,
+  uploadFile
 } from '../services/api.js';
 
 const typeLabels = {
@@ -19,7 +20,8 @@ const typeLabels = {
 const defaultForm = {
   name: '',
   type: 'book',
-  description: ''
+  description: '',
+  image_url: ''
 };
 
 function CollectionsPage() {
@@ -27,6 +29,7 @@ function CollectionsPage() {
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const [formState, setFormState] = useState(defaultForm);
+  const [uploadingCover, setUploadingCover] = useState(false);
 
   const loadCollections = async () => {
     setLoading(true);
@@ -43,6 +46,21 @@ function CollectionsPage() {
   useEffect(() => {
     loadCollections();
   }, []);
+
+  const handleCoverUpload = async (event) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    try {
+      setUploadingCover(true);
+      const { url } = await uploadFile(file);
+      setFormState((prev) => ({ ...prev, image_url: url }));
+      toast.success('Image téléversée');
+    } catch (error) {
+      toast.error("Échec de l'upload");
+    } finally {
+      setUploadingCover(false);
+    }
+  };
 
   const handleCreateCollection = async (event) => {
     event.preventDefault();
@@ -97,6 +115,15 @@ function CollectionsPage() {
               to={`/collections/${collection.id}`}
               className="group relative overflow-hidden rounded-2xl bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
             >
+              {collection.image_url && (
+                <div className="mb-4 overflow-hidden rounded-xl bg-slate-100">
+                  <img
+                    src={collection.image_url}
+                    alt={collection.name}
+                    className="h-40 w-full object-cover transition duration-300 group-hover:scale-105"
+                  />
+                </div>
+              )}
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-semibold text-slate-900">{collection.name}</h3>
                 <span className="rounded-full bg-primary-100 px-3 py-1 text-xs font-medium text-primary-600">
@@ -167,6 +194,34 @@ function CollectionsPage() {
               onChange={(event) => setFormState((prev) => ({ ...prev, description: event.target.value }))}
               className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
             />
+          </div>
+          <div>
+            <label htmlFor="image_url" className="block text-sm font-medium text-slate-700">
+              Image (URL)
+            </label>
+            <input
+              id="image_url"
+              type="url"
+              value={formState.image_url}
+              onChange={(event) => setFormState((prev) => ({ ...prev, image_url: event.target.value }))}
+              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+              placeholder="https://exemple.com/cover.jpg"
+            />
+            <div className="mt-2">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-lg border border-dashed border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleCoverUpload}
+                  disabled={uploadingCover}
+                />
+                {uploadingCover ? 'Téléversement...' : 'Uploader une image'}
+              </label>
+              {formState.image_url && (
+                <span className="ml-3 text-xs text-emerald-600">Image définie</span>
+              )}
+            </div>
           </div>
           <div className="flex justify-end gap-3">
             <button

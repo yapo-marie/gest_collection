@@ -14,6 +14,11 @@ class Settings(BaseSettings):
         env="DATABASE_URL",
     )
     cors_origins: str = Field("http://localhost:3002", env="CORS_ORIGINS")
+    upload_dir: str = Field("uploads", env="UPLOAD_DIR")
+    secret_key: str = Field("change-me", env="SECRET_KEY")
+    jwt_algorithm: str = Field("HS256", env="JWT_ALGORITHM")
+    access_token_expires_minutes: int = Field(60 * 24, env="ACCESS_TOKEN_EXPIRES_MINUTES")
+    firebase_project_id: str = Field("your-firebase-project-id", env="FIREBASE_PROJECT_ID")
 
     class Config:
         env_file = ".env"

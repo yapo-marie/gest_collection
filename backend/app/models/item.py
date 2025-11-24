@@ -12,7 +12,6 @@ class ItemStatus(str, Enum):
     OWNED = "owned"
     IN_PROGRESS = "in_progress"
     COMPLETED = "completed"
-    WISHLIST = "wishlist"
 
 
 class Item(Base):
@@ -27,6 +26,7 @@ class Item(Base):
     rating = Column(Float, nullable=True)
     notes = Column(Text, nullable=True)
     image_url = Column(String(1024), nullable=True)
+    access_url = Column(String(1024), nullable=True)
     purchase_date = Column(Date, nullable=True)
     price = Column(Float, nullable=True)
     tags = Column(JSON, nullable=True)

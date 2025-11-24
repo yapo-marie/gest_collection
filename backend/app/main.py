@@ -6,13 +6,13 @@ from typing import Any
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
+from sqlalchemy import text
+from sqlalchemy.exc import OperationalError
 
 from .api import api_router
 from .config import get_settings
-from .database import Base, engine, session_scope
-from .models import Collection, CollectionType, Item, ItemStatus
-from sqlalchemy import text
-from sqlalchemy.exc import OperationalError
+from .database import Base, engine
 
 logger = logging.getLogger(__name__)
 
@@ -28,56 +28,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.mount("/uploads", StaticFiles(directory=settings.upload_dir, check_dir=False), name="uploads")
+
 
 @app.on_event("startup")
 def on_startup() -> None:
     logger.info("Starting up application", extra={"environment": settings.environment})
     wait_for_database()
     Base.metadata.create_all(bind=engine)
-    seed_data()
 
 
 @app.get("/health", tags=["health"])
 def healthcheck() -> dict[str, Any]:
     return {"status": "ok"}
-
-
-def seed_data() -> None:
-    """Insert a small set of demo data if the database is empty."""
-    with session_scope() as session:
-        if session.query(Collection).first():
-            return
-
-        books = Collection(name="Ma Bibliothèque", type=CollectionType.BOOK, description="Romans et BD")
-        games = Collection(name="Jeux Préférés", type=CollectionType.GAME, description="Jeux vidéo à finir")
-
-        session.add_all([books, games])
-        session.flush()
-
-        session.add_all(
-            [
-                Item(
-                    collection_id=books.id,
-                    title="Dune",
-                    creator="Frank Herbert",
-                    genre="Science Fiction",
-                    status=ItemStatus.COMPLETED,
-                    rating=5,
-                    notes="Classique incontournable",
-                    tags=["sci-fi", "epic"],
-                ),
-                Item(
-                    collection_id=games.id,
-                    title="The Legend of Zelda: Tears of the Kingdom",
-                    creator="Nintendo",
-                    genre="Action-Aventure",
-                    status=ItemStatus.IN_PROGRESS,
-                    rating=4.5,
-                    tags=["nintendo", "open-world"],
-                ),
-            ]
-        )
-        logger.info("Seed data inserted")
 
 
 app.include_router(api_router, prefix="/api")

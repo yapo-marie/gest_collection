@@ -12,8 +12,7 @@ const statuses = [
   { value: '', label: 'Tous les statuts' },
   { value: 'owned', label: 'Possédé' },
   { value: 'in_progress', label: 'En cours' },
-  { value: 'completed', label: 'Terminé' },
-  { value: 'wishlist', label: 'Wishlist' }
+  { value: 'completed', label: 'Terminé' }
 ];
 
 function FilterBar({ filters, onChange, showType }) {

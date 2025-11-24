@@ -10,8 +10,9 @@ from ..crud import CollectionCRUD
 from ..database import get_db
 from ..models import CollectionType
 from ..schemas import CollectionCreate, CollectionRead, CollectionUpdate
+from ..security import get_current_user
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_current_user)])
 
 
 @router.get("", response_model=List[CollectionRead])

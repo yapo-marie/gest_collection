@@ -22,6 +22,7 @@ class Collection(Base):
     name = Column(String(255), nullable=False, unique=True)
     type = Column(PgEnum(CollectionType, name="collection_type"), nullable=False)
     description = Column(Text, nullable=True)
+    image_url = Column(String(1024), nullable=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now(), nullable=False)
 
     items = relationship("Item", back_populates="collection", cascade="all, delete-orphan")
