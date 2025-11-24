@@ -39,8 +39,8 @@ export const AuthProvider = ({ children }) => {
   };
 
   const register = async (email, password) => {
-    await apiRegister({ email, password });
-    await login(email, password);
+    const user = await apiRegister({ email, password });
+    return user;
   };
 
   const loginGoogle = async (idToken) => {

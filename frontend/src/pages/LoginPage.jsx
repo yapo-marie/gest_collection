@@ -5,6 +5,19 @@ import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext.jsx';
 import { loginWithGooglePopup } from '../controllers/googleLogin.js';
 
+const EyeIcon = ({ visible }) =>
+  visible ? (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z" />
+      <circle cx="12" cy="12" r="3" />
+    </svg>
+  ) : (
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
+      <path d="M17.94 17.94A10.94 10.94 0 0 1 12 19c-7 0-11-7-11-7a20.29 20.29 0 0 1 5.06-5.94M9.88 9.88A3 3 0 0 1 14.12 14.12" />
+      <line x1="1" y1="1" x2="23" y2="23" />
+    </svg>
+  );
+
 function LoginPage() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -12,6 +25,7 @@ function LoginPage() {
   const [form, setForm] = useState({ email: '', password: '' });
   const [submitting, setSubmitting] = useState(false);
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -63,14 +77,24 @@ function LoginPage() {
           <label htmlFor="password" className="block text-sm font-medium text-slate-700">
             Mot de passe
           </label>
-          <input
-            id="password"
-            type="password"
-            required
-            value={form.password}
-            onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
-            className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
-          />
+          <div className="relative">
+            <input
+              id="password"
+              type={showPassword ? 'text' : 'password'}
+              required
+              value={form.password}
+              onChange={(event) => setForm((prev) => ({ ...prev, password: event.target.value }))}
+              className="mt-1 w-full rounded-lg border border-slate-200 px-3 py-2 pr-12 text-sm focus:border-primary-500 focus:outline-none focus:ring-2 focus:ring-primary-200"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((prev) => !prev)}
+              className="absolute inset-y-0 right-3 mt-1 flex items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700"
+              aria-label={showPassword ? 'Masquer le mot de passe' : 'Afficher le mot de passe'}
+            >
+              <EyeIcon visible={showPassword} />
+            </button>
+          </div>
         </div>
         <button
           type="submit"

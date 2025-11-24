@@ -7,7 +7,7 @@ from pydantic import BaseModel, EmailStr, Field, constr
 
 class UserCreate(BaseModel):
     email: EmailStr
-    password: constr(min_length=6, max_length=128) = Field(..., description="Mot de passe utilisateur")
+    password: constr(min_length=6, max_length=256) = Field(..., description="Mot de passe utilisateur")
 
 
 class UserRead(BaseModel):

@@ -54,7 +54,6 @@ function Navbar() {
             </>
           ) : (
             <div className="flex items-center gap-3">
-              <span className="text-sm text-slate-600">{user?.email}</span>
               <button
                 type="button"
                 onClick={logout}
