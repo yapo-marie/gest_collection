@@ -5,9 +5,9 @@ import toast from 'react-hot-toast';
 import { uploadFile } from '../services/api.js';
 
 const statusOptions = [
-  { value: 'owned', label: 'Possédé' },
-  { value: 'in_progress', label: 'En cours' },
-  { value: 'completed', label: 'Terminé' }
+  { value: 'possede', label: 'Possédé' },
+  { value: 'en_cours', label: 'En cours' },
+  { value: 'termine', label: 'Terminé' }
 ];
 
 function ItemForm({ initialValues, onSubmit, onCancel }) {

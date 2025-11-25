@@ -27,12 +27,39 @@ function LoginPage() {
   const [googleLoading, setGoogleLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  const getGoogleErrorMessage = (error) => {
+    // Priorité : message renvoyé par l'API (ex: "Invalid Firebase project")
+    const backendMessage = error?.response?.data?.detail;
+    if (backendMessage) {
+      return backendMessage;
+    }
+
+    // Codes Firebase côté client
+    if (error?.code) {
+      const messages = {
+        'auth/popup-closed-by-user': 'La fenêtre Google a été fermée avant validation.',
+        'auth/popup-blocked': 'Le navigateur a bloqué la fenêtre Google.',
+        'auth/unauthorized-domain': "Le domaine n'est pas autorisé dans Firebase (ajoutez votre URL dans les domaines autorisés).",
+        'auth/operation-not-allowed': 'Activez le provider Google dans Firebase.',
+        'auth/cancelled-popup-request': 'Une connexion Google est déjà en cours, réessayez.'
+      };
+      return messages[error.code] ?? `Erreur Google: ${error.code}`;
+    }
+
+    // Codes Axios (ERR_BAD_REQUEST, etc.)
+    if (error?.response?.status) {
+      return `Erreur API (${error.response.status}) : vérifiez la configuration Firebase côté backend.`;
+    }
+
+    return 'Connexion Google impossible';
+  };
+
   const handleSubmit = async (event) => {
     event.preventDefault();
     try {
       setSubmitting(true);
       await login(form.email, form.password);
-      const redirectTo = location.state?.from?.pathname ?? '/';
+      const redirectTo = location.state?.from?.pathname ?? '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (error) {
       toast.error('Email ou mot de passe incorrect');
@@ -46,17 +73,18 @@ function LoginPage() {
       setGoogleLoading(true);
       const { idToken } = await loginWithGooglePopup();
       await loginGoogle(idToken);
-      const redirectTo = location.state?.from?.pathname ?? '/';
+      const redirectTo = location.state?.from?.pathname ?? '/dashboard';
       navigate(redirectTo, { replace: true });
     } catch (error) {
-      toast.error("Connexion Google impossible");
+      console.error('Échec de la connexion Google', error);
+      toast.error(getGoogleErrorMessage(error));
     } finally {
       setGoogleLoading(false);
     }
   };
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-sm">
+    <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-sm sm:p-8">
       <h1 className="text-2xl font-semibold text-slate-900">Connexion</h1>
       <p className="mt-2 text-sm text-slate-500">Accédez à vos collections</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

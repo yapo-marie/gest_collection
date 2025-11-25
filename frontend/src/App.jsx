@@ -1,4 +1,4 @@
-import { Navigate, Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom';
 
 import Navbar from './components/Navbar.jsx';
 import RequireAuth from './components/RequireAuth.jsx';
@@ -8,15 +8,21 @@ import CollectionDetailPage from './pages/CollectionDetailPage.jsx';
 import ItemDetailPage from './pages/ItemDetailPage.jsx';
 import LoginPage from './pages/LoginPage.jsx';
 import RegisterPage from './pages/RegisterPage.jsx';
+import LandingPage from './pages/LandingPage.jsx';
+import Footer from './components/Footer.jsx';
 
 function App() {
+  const location = useLocation();
+  const showFooter = location.pathname === '/';
+
   return (
     <div className="min-h-screen bg-slate-50">
       <Navbar />
       <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
         <Routes>
+          <Route path="/" element={<LandingPage />} />
           <Route
-            path="/"
+            path="/dashboard"
             element={
               <RequireAuth>
                 <HomePage />
@@ -52,6 +58,7 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      {showFooter && <Footer />}
     </div>
   );
 }

@@ -4,7 +4,17 @@ import toast from 'react-hot-toast';
 
 import ItemForm from '../components/ItemForm.jsx';
 import Modal from '../components/Modal.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import { deleteItem, fetchItem, updateItem } from '../services/api.js';
+
+const statusLabels = {
+  possede: 'Possédé',
+  en_cours: 'En cours',
+  termine: 'Terminé',
+  owned: 'Possédé',
+  in_progress: 'En cours',
+  completed: 'Terminé'
+};
 
 function ItemDetailPage() {
   const { itemId } = useParams();
@@ -12,6 +22,7 @@ function ItemDetailPage() {
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   const loadItem = async () => {
     try {
@@ -29,9 +40,6 @@ function ItemDetailPage() {
   }, [itemId]);
 
   const handleDelete = async () => {
-    if (!window.confirm('Supprimer cet item ?')) {
-      return;
-    }
     try {
       await deleteItem(item.id);
       toast.success('Item supprimé');
@@ -75,7 +83,7 @@ function ItemDetailPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <button
             type="button"
@@ -87,7 +95,7 @@ function ItemDetailPage() {
           <h2 className="mt-2 text-2xl font-semibold text-slate-900">{item.title}</h2>
           <p className="text-sm text-slate-500">{item.creator}</p>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
           <button
             type="button"
             onClick={() => setModalOpen(true)}
@@ -97,7 +105,7 @@ function ItemDetailPage() {
           </button>
           <button
             type="button"
-            onClick={handleDelete}
+            onClick={() => setConfirmOpen(true)}
             className="rounded-lg bg-rose-100 px-4 py-2 text-sm font-medium text-rose-600 hover:bg-rose-200"
           >
             Supprimer
@@ -112,7 +120,7 @@ function ItemDetailPage() {
             <dl className="mt-4 grid gap-4 sm:grid-cols-2">
               <div>
                 <dt className="text-sm font-medium text-slate-500">Statut</dt>
-                <dd className="text-sm text-slate-900">{item.status.replace('_', ' ')}</dd>
+                <dd className="text-sm text-slate-900">{statusLabels[item.status] ?? item.status.replace('_', ' ')}</dd>
               </div>
               <div>
                 <dt className="text-sm font-medium text-slate-500">Genre</dt>
@@ -186,6 +194,17 @@ function ItemDetailPage() {
           />
         )}
       </Modal>
+
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Supprimer cet élément ?"
+        message="Êtes-vous sûr de vouloir supprimer cet élément ?"
+        onConfirm={() => {
+          setConfirmOpen(false);
+          handleDelete();
+        }}
+        onCancel={() => setConfirmOpen(false)}
+      />
     </div>
   );
 }

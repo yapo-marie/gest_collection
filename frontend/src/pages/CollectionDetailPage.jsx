@@ -6,6 +6,7 @@ import FilterBar from '../components/FilterBar.jsx';
 import ItemCard from '../components/ItemCard.jsx';
 import ItemForm from '../components/ItemForm.jsx';
 import Modal from '../components/Modal.jsx';
+import ConfirmDialog from '../components/ConfirmDialog.jsx';
 import {
   createItem,
   deleteItem,
@@ -19,7 +20,7 @@ const emptyItem = (collectionId) => ({
   title: '',
   creator: '',
   genre: '',
-  status: 'owned',
+  status: 'possede',
   rating: '',
   notes: '',
   image_url: '',
@@ -37,6 +38,7 @@ function CollectionDetailPage() {
   const [filters, setFilters] = useState({ search: '', type: '', status: '', genre: '' });
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedItem, setSelectedItem] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const loadCollection = async () => {
     try {
@@ -90,16 +92,16 @@ function CollectionDetailPage() {
     }
   };
 
-  const handleDelete = async (item) => {
-    if (!window.confirm(`Supprimer ${item.title} ?`)) {
-      return;
-    }
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteItem(item.id);
+      await deleteItem(deleteTarget.id);
       toast.success('Item supprimé');
       loadItems();
     } catch (error) {
       toast.error("Impossible de supprimer l'item");
+    } finally {
+      setDeleteTarget(null);
     }
   };
 
@@ -120,23 +122,44 @@ function CollectionDetailPage() {
     return <p className="text-center text-slate-500">Chargement de la collection...</p>;
   }
 
+  const typeLabels = {
+    livre: 'Livre',
+    film: 'Film',
+    jeu: 'Jeu',
+    carte: 'Carte',
+    book: 'Livre',
+    movie: 'Film',
+    game: 'Jeu',
+    card: 'Carte'
+  };
+
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-semibold text-slate-900">{collection.name}</h2>
-          <p className="text-sm text-slate-500">{collection.description}</p>
+      <div className="glass-card rounded-2xl p-5 sm:p-6">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="pill bg-primary-50 text-primary-700 capitalize">
+                {typeLabels[collection.type] ?? collection.type}
+              </span>
+              <span className="pill bg-slate-100 text-slate-600">
+                {new Date(collection.created_at).toLocaleDateString()}
+              </span>
+            </div>
+            <h2 className="text-2xl font-semibold text-slate-900">{collection.name}</h2>
+            <p className="text-sm text-slate-500">{collection.description}</p>
+          </div>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedItem(null);
+              setModalOpen(true);
+            }}
+            className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-primary-700"
+          >
+            Nouvel élément
+          </button>
         </div>
-        <button
-          type="button"
-          onClick={() => {
-            setSelectedItem(null);
-            setModalOpen(true);
-          }}
-          className="rounded-lg bg-primary-600 px-4 py-2 text-sm font-medium text-white hover:bg-primary-700"
-        >
-          Nouvel item
-        </button>
       </div>
 
       {collection.image_url && (
@@ -154,7 +177,19 @@ function CollectionDetailPage() {
       {loading ? (
         <p className="text-center text-slate-500">Chargement des items...</p>
       ) : items.length === 0 ? (
-        <p className="text-center text-slate-500">Aucun item pour cette collection.</p>
+        <div className="glass-card rounded-2xl p-8 text-center">
+          <p className="text-sm text-slate-500">Aucun item pour cette collection.</p>
+          <button
+            type="button"
+            onClick={() => {
+              setSelectedItem(null);
+              setModalOpen(true);
+            }}
+            className="mt-4 rounded-lg bg-primary-600 px-4 py-2 text-sm font-semibold text-white shadow hover:bg-primary-700"
+          >
+            Nouvel élément
+          </button>
+        </div>
       ) : (
         <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
           {items.map((item) => (
@@ -165,14 +200,14 @@ function CollectionDetailPage() {
                 setSelectedItem(item);
                 setModalOpen(true);
               }}
-              onDelete={handleDelete}
+              onDelete={() => setDeleteTarget(item)}
             />
           ))}
         </div>
       )}
 
       <Modal
-        title={selectedItem ? `Modifier ${selectedItem.title}` : 'Nouvel item'}
+        title={selectedItem ? `Modifier ${selectedItem.title}` : 'Nouvel élément'}
         open={modalOpen}
         onClose={() => {
           setModalOpen(false);
@@ -188,6 +223,14 @@ function CollectionDetailPage() {
           onSubmit={(payload) => handleCreateOrUpdate({ ...payload, collection_id: Number(collectionId) })}
         />
       </Modal>
+
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Supprimer cet élément ?"
+        message={`Êtes-vous sûr de vouloir supprimer "${deleteTarget?.title ?? ''}" ?`}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
     </div>
   );
 }

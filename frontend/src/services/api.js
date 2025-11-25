@@ -67,18 +67,29 @@ export const fetchDashboardStats = async () => {
   const collections = collectionsRes.data;
   const items = itemsRes.data;
 
+  const typeAliases = {
+    livre: 'livre',
+    book: 'livre',
+    film: 'film',
+    movie: 'film',
+    jeu: 'jeu',
+    game: 'jeu',
+    carte: 'carte',
+    card: 'carte'
+  };
   const typeLabels = {
-    book: 'Livres',
-    movie: 'Films',
-    game: 'Jeux',
-    card: 'Cartes'
+    livre: 'Livres',
+    film: 'Films',
+    jeu: 'Jeux',
+    carte: 'Cartes'
   };
   const collectionsById = collections.reduce((acc, collection) => {
-    acc[collection.id] = collection.type;
+    const normalized = typeAliases[collection.type] ?? collection.type;
+    acc[collection.id] = normalized;
     return acc;
   }, {});
   const byTypeCounts = items.reduce((acc, item) => {
-    const type = collectionsById[item.collection_id];
+    const type = typeAliases[collectionsById[item.collection_id]] ?? collectionsById[item.collection_id];
     if (!type) {
       return acc;
     }
@@ -86,24 +97,31 @@ export const fetchDashboardStats = async () => {
     return acc;
   }, {});
 
-  const knownTypes = Object.keys(typeLabels);
-  const dynamicTypes = Object.keys(byTypeCounts).filter((type) => !knownTypes.includes(type));
-  const orderedTypes = [...knownTypes, ...dynamicTypes];
-
-  const byType = orderedTypes.map((type) => ({
-    type: typeLabels[type] ?? type,
-    count: byTypeCounts[type] ?? 0
+  const byType = Object.entries(typeLabels).map(([key, label]) => ({
+    type: label,
+    count: byTypeCounts[key] ?? 0
   }));
 
+  const statusAliases = {
+    possede: 'possede',
+    owned: 'possede',
+    en_cours: 'en_cours',
+    'en cours': 'en_cours',
+    in_progress: 'en_cours',
+    termine: 'termine',
+    terminé: 'termine',
+    completed: 'termine'
+  };
+  const statusLabels = {
+    possede: 'Possédé',
+    en_cours: 'En cours',
+    termine: 'Terminé'
+  };
   const byStatusMap = items.reduce((acc, item) => {
-    acc[item.status] = (acc[item.status] ?? 0) + 1;
+    const key = statusAliases[item.status] ?? item.status;
+    acc[key] = (acc[key] ?? 0) + 1;
     return acc;
   }, {});
-  const statusLabels = {
-    owned: 'Possédé',
-    in_progress: 'En cours',
-    completed: 'Terminé'
-  };
   const byStatus = Object.entries(statusLabels).map(([status, label]) => ({
     status,
     label,

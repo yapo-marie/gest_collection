@@ -46,7 +46,7 @@ function RegisterPage() {
   };
 
   return (
-    <div className="mx-auto max-w-md rounded-2xl bg-white p-8 shadow-sm">
+    <div className="mx-auto w-full max-w-md rounded-2xl bg-white p-6 shadow-sm sm:p-8">
       <h1 className="text-2xl font-semibold text-slate-900">Créer un compte</h1>
       <p className="mt-2 text-sm text-slate-500">Rejoignez votre espace collections</p>
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">

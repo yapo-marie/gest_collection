@@ -19,9 +19,9 @@ function Modal({ title, open, onClose, children }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm">
-      <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm px-4">
+      <div className="w-full max-w-2xl rounded-2xl bg-white p-6 shadow-xl max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between gap-3">
           <h2 className="text-lg font-semibold text-slate-900">{title}</h2>
           <button
             type="button"
